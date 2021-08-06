@@ -67,8 +67,6 @@ We use [gocron](https://github.com/go-co-op/gocron) to make a unix CRON like beh
 
 * Golang (tested on go1.16.6 linux/amd64)
 
-End with an example of getting some data out of the system or using it for a little demo.
-
 ## Usage
 
 To use with the `CSVDataPopulation` you need to set an environment var called `CSV_PATH` which contain the **absolute** path of the CSV file containing your populated pages with the format `url,priority,handler` (same as the CSV sample in this repo).
