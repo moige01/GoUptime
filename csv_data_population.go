@@ -3,9 +3,6 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-// TODO: Implement caching to avoid to read the entire file
-// over and over again.
-
 package main
 
 import (

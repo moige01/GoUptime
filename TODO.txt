@@ -1,1 +1,4 @@
 * Write systemd service unit
+* Change CRON schedule to CRON syntax and pass via env var
+* Change stderr to file, so default log can be see via file
+* CSVDataPopulation: Implement caching to avoid to read the entire file
