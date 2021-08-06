@@ -15,7 +15,7 @@ func TestCsvDataPopulation(t *testing.T) {
 	c := new(CSVDataPopulation)
 	h := make(Handlers)
 
-	h.registerHandler("STDOUT", new(StdoutHandler))
+	h.RegisterHandler("STDOUT", new(StdoutHandler))
 
 	nodes := c.ReadFromCSV(h)
 

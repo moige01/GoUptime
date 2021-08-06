@@ -1,5 +1,5 @@
 url,priority,handler
 https://www.google.com,100,STDOUT
 https://www.linkedin.com,23,STDOUT
-sdsd.com,23,LOG
-http://DONTEXISDSD.com,23,LOG
+withnotschema.com,23,LOG
+http://NOEXISTS.com,23,DISCORD

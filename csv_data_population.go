@@ -3,17 +3,76 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+// TODO: Implement caching to avoid to read the entire file
+// over and over again.
+
 package main
 
 import (
 	"encoding/csv"
+	"errors"
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
+
+	"github.com/gabriel-vasile/mimetype"
+)
+
+var (
+	NotAFile = errors.New("Target is not a file")
 )
 
 type CSVDataPopulation struct{}
+
+func (c *CSVDataPopulation) verifyMime(path string) bool {
+	logger, err := NewFileLogger()
+
+	mtype, err := mimetype.DetectFile(path)
+
+	if err != nil {
+		logger.GetErrorLogger().Fatalln("Fail to get MIME type of given path")
+	}
+
+	return mtype.Is("text/csv")
+}
+
+func (c *CSVDataPopulation) verifyFile(path string) error {
+	fi, err := os.Stat(path)
+
+	if err != nil {
+		return err
+	}
+
+	if !fi.Mode().IsRegular() {
+		return NotAFile
+	}
+
+	return nil
+}
+
+func (c *CSVDataPopulation) verifyPath() string {
+	logger, err := NewFileLogger()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	path, ok := os.LookupEnv("CSV_PATH")
+
+	if !ok {
+		logger.GetErrorLogger().Fatalln("CSV_PATH MUST be filled ")
+	}
+
+	ok = filepath.IsAbs(path)
+
+	if !ok {
+		logger.GetErrorLogger().Fatalln("CSV_PATH MUST be an absolute path.")
+	}
+
+	return path
+}
 
 func (c *CSVDataPopulation) ReadFromCSV(h Handlers) []*Node {
 	logger, err := NewFileLogger()
@@ -22,7 +81,20 @@ func (c *CSVDataPopulation) ReadFromCSV(h Handlers) []*Node {
 		log.Fatal(err)
 	}
 
-	in, err := os.OpenFile("csv/pages.csv", os.O_RDONLY, 0666)
+	path := c.verifyPath()
+	err = c.verifyFile(path)
+
+	if err != nil {
+		logger.GetErrorLogger().Fatalln(err)
+	}
+
+	ok := c.verifyMime(path)
+
+	if !ok {
+		logger.GetErrorLogger().Fatalf("%s seems to not be a valid CSV file\n", path)
+	}
+
+	in, err := os.OpenFile(path, os.O_RDONLY, 0666)
 
 	defer in.Close()
 
@@ -54,7 +126,7 @@ func (c *CSVDataPopulation) ReadFromCSV(h Handlers) []*Node {
 		node := &Node{
 			value: &Page{
 				url:     record[0],
-				handler: h.getHandler(record[2]),
+				handler: h.GetHandler(record[2]),
 			},
 			index:    i,
 			priority: priority,

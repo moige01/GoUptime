@@ -16,8 +16,9 @@ func main() {
 	h := make(Handlers)
 	uc := new(UptimeChecker)
 
-	h.registerHandler("STDOUT", new(StdoutHandler))
-	h.registerHandler("LOG", new(LogHandler))
+	h.RegisterHandler("STDOUT", new(StdoutHandler))
+	h.RegisterHandler("LOG", new(LogHandler))
+	h.RegisterHandler("DISCORD", new(DiscordHandler))
 
 	s.Every(5).Minutes().Do(func() {
 		uc.Init(new(CSVDataPopulation), h)

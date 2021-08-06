@@ -19,11 +19,11 @@ type HandlerFunc interface {
 
 type Handlers map[string]HandlerFunc
 
-func (h Handlers) registerHandler(name string, handler HandlerFunc) {
+func (h Handlers) RegisterHandler(name string, handler HandlerFunc) {
 	h[name] = handler
 }
 
-func (h Handlers) getHandler(name string) HandlerFunc {
+func (h Handlers) GetHandler(name string) HandlerFunc {
 	logger, err := NewFileLogger()
 
 	if err != nil {
