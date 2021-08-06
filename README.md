@@ -30,7 +30,7 @@ It use the `PriorityQueue` type to iterate over all pages ordered by their prior
 URL provided and execute a method passing the URL, HTTP Status Code, HTTP Status Message and and `sync.WaitGroup`. The WaitGroup is used
 to communicate to the main thread that all pages were handled since we're using go routines.
 
-In essence, the project is extensible. For that we created two interfaces: `DataPopulation` and `Handlers`, [here](./data_propulation.go) and [here](./handlers.go) respective.
+In essence, the project is extensible. For that we created two interfaces: `DataPopulation` and `Handlers`, [here](./data_population.go) and [here](./handlers.go) respective.
 
 #### DataPopulation <a name="data_population">
 
