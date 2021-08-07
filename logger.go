@@ -15,6 +15,7 @@ var (
 	WarningLogger *log.Logger
 	InfoLogger    *log.Logger
 	ErrorLogger   *log.Logger
+	DebugLogger   *log.Logger
 )
 
 type FileLogger struct {
@@ -51,4 +52,17 @@ func (l *FileLogger) GetLogger(logType string) *log.Logger {
 	format := fmt.Sprintf("%s: ", logType)
 
 	return log.New(l.file, format, log.Ldate|log.Ltime|log.Lshortfile)
+}
+
+func initLoggers() {
+	logger, err := NewFileLogger()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	WarningLogger = logger.GetWarningLogger()
+	InfoLogger = logger.GetInfoLogger()
+	DebugLogger = logger.GetDebugLogger()
+	ErrorLogger = logger.GetErrorLogger()
 }

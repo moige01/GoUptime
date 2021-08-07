@@ -17,7 +17,7 @@ func TestCsvDataPopulation(t *testing.T) {
 
 	h.RegisterHandler("STDOUT", new(StdoutHandler))
 
-	nodes := c.ReadFromCSV(h)
+	nodes := c.readFromCSV(h)
 
 	assert.Equal(t, 4, len(nodes))
 }

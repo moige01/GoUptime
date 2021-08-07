@@ -9,7 +9,6 @@ import (
 	"encoding/csv"
 	"errors"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -24,12 +23,10 @@ var (
 type CSVDataPopulation struct{}
 
 func (c *CSVDataPopulation) verifyMime(path string) bool {
-	logger, err := NewFileLogger()
-
 	mtype, err := mimetype.DetectFile(path)
 
 	if err != nil {
-		logger.GetErrorLogger().Fatalln("Fail to get MIME type of given path")
+		ErrorLogger.Fatalln("Fail to get MIME type of given path")
 	}
 
 	return mtype.Is("text/csv")
@@ -50,45 +47,33 @@ func (c *CSVDataPopulation) verifyFile(path string) error {
 }
 
 func (c *CSVDataPopulation) verifyPath() string {
-	logger, err := NewFileLogger()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	path, ok := os.LookupEnv("CSV_PATH")
 
 	if !ok {
-		logger.GetErrorLogger().Fatalln("CSV_PATH MUST be filled ")
+		ErrorLogger.Fatalln("CSV_PATH MUST be filled ")
 	}
 
 	ok = filepath.IsAbs(path)
 
 	if !ok {
-		logger.GetErrorLogger().Fatalln("CSV_PATH MUST be an absolute path.")
+		ErrorLogger.Fatalln("CSV_PATH MUST be an absolute path.")
 	}
 
 	return path
 }
 
-func (c *CSVDataPopulation) ReadFromCSV(h Handlers) []*Node {
-	logger, err := NewFileLogger()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func (c *CSVDataPopulation) readFromCSV(h Handlers) []*Node {
 	path := c.verifyPath()
-	err = c.verifyFile(path)
+	err := c.verifyFile(path)
 
 	if err != nil {
-		logger.GetErrorLogger().Fatalln(err)
+		ErrorLogger.Fatalln(err)
 	}
 
 	ok := c.verifyMime(path)
 
 	if !ok {
-		logger.GetErrorLogger().Fatalf("%s seems to not be a valid CSV file\n", path)
+		ErrorLogger.Fatalf("%s seems to not be a valid CSV file\n", path)
 	}
 
 	in, err := os.OpenFile(path, os.O_RDONLY, 0666)
@@ -96,7 +81,7 @@ func (c *CSVDataPopulation) ReadFromCSV(h Handlers) []*Node {
 	defer in.Close()
 
 	if err != nil {
-		logger.GetErrorLogger().Printf("Error trying to load CSV pages data: %s\n", err.Error())
+		ErrorLogger.Printf("Error trying to load CSV pages data: %s\n", err.Error())
 	}
 
 	r := csv.NewReader(in)
@@ -105,7 +90,7 @@ func (c *CSVDataPopulation) ReadFromCSV(h Handlers) []*Node {
 	i := 0
 	for record, err := r.Read(); err != io.EOF; record, err = r.Read() {
 		if err != nil {
-			logger.GetErrorLogger().Println(err)
+			ErrorLogger.Println(err)
 		}
 
 		// Skip headers
@@ -117,7 +102,7 @@ func (c *CSVDataPopulation) ReadFromCSV(h Handlers) []*Node {
 		priority, err := strconv.Atoi(record[1])
 
 		if err != nil {
-			logger.GetErrorLogger().Println(err)
+			ErrorLogger.Println(err)
 		}
 
 		node := &Node{
@@ -138,7 +123,7 @@ func (c *CSVDataPopulation) ReadFromCSV(h Handlers) []*Node {
 }
 
 func (c *CSVDataPopulation) Populate(h Handlers) *PriorityQueue {
-	nodes := c.ReadFromCSV(h)
+	nodes := c.readFromCSV(h)
 	pq := make(PriorityQueue, len(nodes))
 
 	for i, node := range nodes {

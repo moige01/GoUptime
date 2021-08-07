@@ -11,6 +11,11 @@ import (
 	"github.com/go-co-op/gocron"
 )
 
+func init() {
+	setGlobalLogToFile()
+	initLoggers()
+}
+
 func main() {
 	s := gocron.NewScheduler(time.UTC)
 	h := make(Handlers)
@@ -20,7 +25,7 @@ func main() {
 	h.RegisterHandler("LOG", new(LogHandler))
 	h.RegisterHandler("DISCORD", new(DiscordHandler))
 
-	s.Every(5).Minutes().Do(func() {
+	s.Every(5).Seconds().SingletonMode().Do(func() {
 		uc.Init(new(CSVDataPopulation), h)
 		uc.VerifyStatus()
 	})

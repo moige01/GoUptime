@@ -9,7 +9,6 @@
 package main
 
 import (
-	"log"
 	"sync"
 )
 
@@ -24,16 +23,10 @@ func (h Handlers) RegisterHandler(name string, handler HandlerFunc) {
 }
 
 func (h Handlers) GetHandler(name string) HandlerFunc {
-	logger, err := NewFileLogger()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	fn, ok := h[name]
 
 	if !ok {
-		logger.GetErrorLogger().Printf("Handler for: %s WAS NOT REGISTERED", name)
+		ErrorLogger.Printf("Handler for: %s WAS NOT REGISTERED", name)
 
 		return nil
 	}

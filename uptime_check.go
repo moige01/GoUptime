@@ -11,7 +11,6 @@ package main
 
 import (
 	"container/heap"
-	"log"
 	"net/http"
 	"sync"
 )
@@ -38,12 +37,6 @@ func getStatusAndMessageOfUrl(url string, sch chan int, mch chan string) {
 }
 
 func (p *Page) GetStatus(wg *sync.WaitGroup) {
-	logger, err := NewFileLogger()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	sch := make(chan int)
 	mch := make(chan string)
 
@@ -52,7 +45,7 @@ func (p *Page) GetStatus(wg *sync.WaitGroup) {
 	status, message := <-sch, <-mch
 
 	if p.handler == nil {
-		logger.GetWarningLogger().Printf(
+		WarningLogger.Printf(
 			"Handler for %s doesn't exists. Seems like it was not properly registered in Init step",
 			p.url,
 		)
