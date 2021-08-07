@@ -11,7 +11,7 @@
 
 - [About](#about)
 - [Contributing](#contributing)
-    - [DataPopulation](#data_population)
+    - [DataSource](#data_population)
     - [Handlers](#handlers)
 - [Flow](#flow)
 - [Prerequisites](#prerequisites)
@@ -30,9 +30,9 @@ It use the `PriorityQueue` type to iterate over all pages ordered by their prior
 URL provided and execute a method passing the URL, HTTP Status Code, HTTP Status Message and and `sync.WaitGroup`. The WaitGroup is used
 to communicate to the main thread that all pages were handled since we're using go routines.
 
-In essence, the project is extensible. For that we created two interfaces: `DataPopulation` and `Handlers`, [here](./data_population.go) and [here](./handlers.go) respective.
+In essence, the project is extensible. For that we created two interfaces: `DataSource` and `Handlers`, [here](./data_population.go) and [here](./handlers.go) respective.
 
-#### DataPopulation <a name="data_population">
+#### DataSource <a name="data_population">
 
 This interface **MUST** be implemented if you want to create your own way to populate a list of pages. This interface only need to implement a single "method":
 `Dispatch` that receive a `map[string]HandlerFunc` (hash list of handlers functions as value with their identifers as key) and returns a pointer to a `PriorityQueue`.
@@ -46,7 +46,7 @@ The source of your data runs by your own. Whatever your data source are, you **M
 ]
 ```
 
-You will need to use the `Page` struct and the `Node` struct to construct your `PriorityQueue`. There is a built-in called `CSVDataPopulation` ([here](./csv_data_population.go)). It can help you to get familiarized.
+You will need to use the `Page` struct and the `Node` struct to construct your `PriorityQueue`. There is a built-in called `CSVDataSource` ([here](./csv_data_population.go)). It can help you to get familiarized.
 
 NOTE: You have an sample CSV [here](./csv/pages.example.csv)
 
@@ -61,7 +61,7 @@ Each handler **MUST** be registered in the `main` function. The `RegisterHandler
 
 ## Flow <a name="flow"></a>
 
-We use [gocron](https://github.com/go-co-op/gocron) to make a unix CRON like behavior. So, the first step in `main` function is register all of the `HandlerFunc`s available. Then, we create a time frequency for our `UptimeChecker`, for now is executed every five minutes. On each call, we initialize our `UptimeChecker` with the `Init` method, passing our `DataPopulation` and our `Handlers` as arguments. Next, the `VerifyStatus` method is executed, which iterate over our populated pages and executing their `HandlerFunc`.
+We use [gocron](https://github.com/go-co-op/gocron) to make a unix CRON like behavior. So, the first step in `main` function is register all of the `HandlerFunc`s available. Then, we create a time frequency for our `UptimeChecker`, which is defined with the `interval` flag on command invocation. On each call, we initialize our `UptimeChecker` with the `Init` method, passing our `DataSource` and our `Handlers` as arguments. Next, the `VerifyStatus` method is executed, which iterate over our populated pages and executing their `HandlerFunc`.
 
 ## Prerequisites <a name="prerequisites"></a>
 
@@ -69,10 +69,18 @@ We use [gocron](https://github.com/go-co-op/gocron) to make a unix CRON like beh
 
 ## Usage
 
-To use with the `CSVDataPopulation` you need to set an environment var called `CSV_PATH` which contain the **absolute** path of the CSV file containing your populated pages with the format `url,priority,handler` (same as the CSV sample in this repo).
+To use with the `CSVDataSource` you need to set an environment var called `CSV_PATH` which contain the **absolute** path of the CSV file containing your populated pages with the format `url,priority,handler` (same as the CSV sample in this repo).
 
 To use the Discord handler, you need to set two environment vars: `DISCORD_BOT_TOKEN` and `DISCORD_CHANNEL_ID`. Self explanatory.
 
+You **MUST** pass `interval` flag to define the time interval to execute the job. The syntax is similar to UNIX CRON, but is enhanced by [robfig/cron](https://pkg.go.dev/github.com/robfig/cron) package. Please, see that doc to see features available.
+
 ```sh
-$ CSV_PATH=$HOME/pages.csv DISCORD_BOT_TOKEN=XXX DISCORD_CHANNEL_ID=XXX ./gouptime
+$ CSV_PATH=$HOME/pages.csv DISCORD_BOT_TOKEN=XXX DISCORD_CHANNEL_ID=XXX ./gouptime -interval "@every 5m"
 ```
+
+#### Examples for `interval` flag
+* `@every <interval>` "interval" is a valid value for `time.ParseDuration`
+* `*/5 * * * * *` Every five seconds. Note that there is a extra value to the standard UNIX CRON entry. The first values define seconds intervals
+* `@daily` Once a day or midnight
+* `@every 1h30` Every on hour thirty

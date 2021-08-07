@@ -20,9 +20,9 @@ var (
 	NotAFile = errors.New("Target is not a file")
 )
 
-type CSVDataPopulation struct{}
+type CSVDataSource struct{}
 
-func (c *CSVDataPopulation) verifyMime(path string) bool {
+func (c *CSVDataSource) verifyMime(path string) bool {
 	mtype, err := mimetype.DetectFile(path)
 
 	if err != nil {
@@ -32,7 +32,7 @@ func (c *CSVDataPopulation) verifyMime(path string) bool {
 	return mtype.Is("text/csv")
 }
 
-func (c *CSVDataPopulation) verifyFile(path string) error {
+func (c *CSVDataSource) verifyFile(path string) error {
 	fi, err := os.Stat(path)
 
 	if err != nil {
@@ -46,7 +46,7 @@ func (c *CSVDataPopulation) verifyFile(path string) error {
 	return nil
 }
 
-func (c *CSVDataPopulation) verifyPath() string {
+func (c *CSVDataSource) verifyPath() string {
 	path, ok := os.LookupEnv("CSV_PATH")
 
 	if !ok {
@@ -62,7 +62,7 @@ func (c *CSVDataPopulation) verifyPath() string {
 	return path
 }
 
-func (c *CSVDataPopulation) readFromCSV(h Handlers) []*Node {
+func (c *CSVDataSource) readFromCSV(h Handlers) []*Node {
 	path := c.verifyPath()
 	err := c.verifyFile(path)
 
@@ -122,7 +122,7 @@ func (c *CSVDataPopulation) readFromCSV(h Handlers) []*Node {
 	return nodes
 }
 
-func (c *CSVDataPopulation) Populate(h Handlers) *PriorityQueue {
+func (c *CSVDataSource) Populate(h Handlers) *PriorityQueue {
 	nodes := c.readFromCSV(h)
 	pq := make(PriorityQueue, len(nodes))
 

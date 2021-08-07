@@ -72,6 +72,6 @@ func (uc *UptimeChecker) VerifyStatus() {
 	uc.wg.Wait()
 }
 
-func (uc *UptimeChecker) Init(p DataPopulation, h Handlers) {
+func (uc *UptimeChecker) Init(p DataSource, h Handlers) {
 	uc.pages = p.Populate(h)
 }

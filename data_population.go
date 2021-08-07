@@ -5,6 +5,6 @@
 
 package main
 
-type DataPopulation interface {
+type DataSource interface {
 	Populate(h Handlers) *PriorityQueue
 }

@@ -1,4 +1,4 @@
 * Write systemd service unit
-* Change CRON schedule to CRON syntax and pass via env var
-* CSVDataPopulation: Implement caching to avoid to read the entire file
-* Add SQLDataPopulation
+* CSVDataSource: Implement caching to avoid to read the entire file
+* Add SQLDataSource
+* Add data population source selection

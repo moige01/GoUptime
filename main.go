@@ -6,29 +6,37 @@
 package main
 
 import (
-	"time"
-
 	"github.com/go-co-op/gocron"
+)
+
+var (
+	scheduler *gocron.Scheduler
+	interval  string
 )
 
 func init() {
 	setGlobalLogToFile()
 	initLoggers()
+	initScheduler(&scheduler, &interval)
 }
 
 func main() {
-	s := gocron.NewScheduler(time.UTC)
 	h := make(Handlers)
 	uc := new(UptimeChecker)
+	csv := new(CSVDataSource)
 
 	h.RegisterHandler("STDOUT", new(StdoutHandler))
 	h.RegisterHandler("LOG", new(LogHandler))
 	h.RegisterHandler("DISCORD", new(DiscordHandler))
 
-	s.Every(5).Seconds().SingletonMode().Do(func() {
-		uc.Init(new(CSVDataPopulation), h)
+	_, err := scheduler.SingletonMode().Do(func() {
+		uc.Init(csv, h)
 		uc.VerifyStatus()
 	})
 
-	s.StartBlocking()
+	if err != nil {
+		ErrorLogger.Fatal(err)
+	}
+
+	scheduler.StartBlocking()
 }

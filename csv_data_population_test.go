@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCsvDataPopulation(t *testing.T) {
-	c := new(CSVDataPopulation)
+func TestCsvDataSourcen(t *testing.T) {
+	c := new(CSVDataSource)
 	h := make(Handlers)
 
 	h.RegisterHandler("STDOUT", new(StdoutHandler))
